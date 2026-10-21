@@ -1,18 +1,18 @@
 {
     "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
     "name": "cc-gemini-plugin",
-    "description": "Gemini delegation through Antigravity CLI with a portable Agent Skill",
+    "description": "Gemini delegation through Antigravity CLI with smart task routing, review protocol, and portable Agent Skills",
     "owner": {
-        "name": "thepushkarp",
-        "email": ""
+        "name": "khanhVu-ops",
+        "email": "vuvankhanh022002@gmail.com"
     },
     "plugins": [
         {
             "name": "cc-gemini-plugin",
-            "description": "Delegate tasks through Antigravity CLI using its available models, tools, and working context",
-            "version": "2.0.0",
+            "description": "Delegate tasks through Antigravity CLI (agy) using its models, tools, and isolated context to optimize tokens and speed",
+            "version": "2.1.0",
             "author": {
-                "name": "thepushkarp"
+                "name": "KhanhVu"
             },
             "source": "./",
             "category": "integrations",
@@ -26,10 +26,12 @@
                 "documentation",
                 "writing",
                 "codex",
-                "claude-code"
+                "claude-code",
+                "token-optimization",
+                "subagent"
             ],
-            "homepage": "https://github.com/thepushkarp/cc-gemini-plugin",
-            "repository": "https://github.com/thepushkarp/cc-gemini-plugin"
+            "homepage": "https://github.com/khanhVu-ops/cc-gemini-plugin",
+            "repository": "https://github.com/khanhVu-ops/cc-gemini-plugin"
         }
     ]
 }

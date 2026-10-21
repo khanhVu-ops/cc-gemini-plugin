@@ -50,7 +50,7 @@ model catalogue or model-family routing rules. See the current
 In Claude Code:
 
 ```text
-/plugin marketplace add thepushkarp/cc-gemini-plugin
+/plugin marketplace add khanhVu-ops/cc-gemini-plugin
 /plugin install cc-gemini-plugin@cc-gemini-plugin
 /reload-plugins
 ```
@@ -66,20 +66,42 @@ claude plugin update cc-gemini-plugin@cc-gemini-plugin
 Then run `/reload-plugins` in Claude Code. You can also select **Update now**
 from the Installed tab in `/plugin`.
 
+### Multi-Agent Delegation & Token Optimization (Claude Code + Gemini)
+
+This repository includes custom routing and review rules designed to minimize Claude token consumption:
+
+- **Delegate to Gemini (`gemini-agent`)**: Unit tests, boilerplate code, documentation, formatting, routine refactoring, and large-context codebase research.
+- **Retain in Claude**: System architecture, complex debugging, and security-critical modules.
+- **Mandatory Review**: Claude automatically inspects `git diff`, runs tests/linting, and verifies all changes made by Gemini before presenting them to you.
+
+#### Installing Delegation Rules
+
+Install rules globally (`~/.claude/CLAUDE.md`):
+
+```bash
+bash scripts/install-rules.sh --global
+```
+
+Or install locally for the current project (`./CLAUDE.md`):
+
+```bash
+bash scripts/install-rules.sh --local
+```
+
 ### Codex and other Agent Skills hosts
 
 Install with the [Vercel skills CLI](https://github.com/vercel-labs/skills)
 using [Bun](https://bun.sh/docs/installation):
 
 ```bash
-bunx skills add thepushkarp/cc-gemini-plugin --skill gemini-integration
+bunx skills add khanhVu-ops/cc-gemini-plugin --skill gemini-integration
 ```
 
 Select the desired hosts interactively, or specify one. For a user-level Codex
 installation available across projects:
 
 ```bash
-bunx skills add thepushkarp/cc-gemini-plugin --skill gemini-integration -g -a codex
+bunx skills add khanhVu-ops/cc-gemini-plugin --skill gemini-integration -g -a codex
 ```
 
 Use `$gemini-integration` in Codex. Implicit skill selection remains enabled.

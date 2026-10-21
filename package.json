@@ -1,12 +1,9 @@
 {
   "name": "cc-gemini-plugin",
-  "version": "2.0.0",
-  "private": true,
+  "version": "2.1.0",
+  "description": "Delegate tasks through Antigravity CLI from Claude Code and Codex",
   "type": "module",
-  "packageManager": "bun@1.4.2",
-  "engines": {
-    "node": ">=22"
-  },
+  "author": "KhanhVu",
   "scripts": {
     "test": "node --test"
   }
