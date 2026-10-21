@@ -10,7 +10,7 @@
         {
             "name": "cc-gemini-plugin",
             "description": "Delegate tasks through Antigravity CLI (agy) using its models, tools, and isolated context to optimize tokens and speed",
-            "version": "2.1.0",
+            "version": "2.2.0",
             "author": {
                 "name": "KhanhVu"
             },
