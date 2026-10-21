@@ -49,7 +49,9 @@ Do not use the installation directory as the task's workspace.
 Give `agy` the desired outcome, relevant context or references, scope, and
 constraints. Put file and directory focus directly in the task. Request a result
 summary and the evidence needed to assess it, such as sources, artifacts, or
-check results. The bridge transmits task text unchanged; it adds no instructions.
+check results. The bridge prepends a short preamble that steers `agy` away from
+compound shell commands (which headless mode denies) and asks for relative paths
+and a concise answer; pass `--no-preamble` to send the task text unchanged.
 Exclude secrets and unrelated private data from the requested scope.
 
 For tasks that may change files, capture the relevant starting state (Git status
@@ -81,15 +83,16 @@ bridge sends the task to `agy` over stdin.
 
 | Option | Use |
 | --- | --- |
-| `--model <id>` | Optional override; omit to use the configured default. Discover IDs with `agy models`. |
+| `--model <id>` | Optional override. Default is `$AGY_BRIDGE_MODEL`, else `gemini-3.8-flash-high`; set the variable to an empty string to use `agy`'s own default. Discover IDs with `agy models`. |
 | `--effort <value>` | Optional native effort override; let `agy` validate supported values. |
 | `--conversation <id>` | Resume the exact conversation ID returned by an earlier result. |
 | `--format text\|json\|stream-json` | Default `text`; use `json` for reliable result inspection. |
 | `--timeout <seconds>` | Positive time limit, default 600; the bridge also enforces a watchdog. |
+| `--no-preamble` | Send the task text without the bridge's delegation rules. |
 | `--print-command` | Print a JSON launch description without running `agy`. |
 
-Do not hard-code model names or choose model-specific behavior. Omit model and
-effort overrides unless supplied or explicitly requested by the caller. Resume
+Do not choose model-specific behavior. Omit model and effort overrides unless
+supplied or explicitly requested by the caller; the bridge default applies. Resume
 only an explicitly selected conversation in the intended workspace, never an
 implicit latest session or a private database lookup. Programmatic requests
 disable slash-command expansion.

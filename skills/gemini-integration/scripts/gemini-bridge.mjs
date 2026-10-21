@@ -11,6 +11,18 @@ const FORMATS = new Set(["text", "json", "stream-json"]);
 const MAX_FRAME_BYTES = 32 * 1024 * 1024;
 const MAX_PARTIAL_BYTES = 32 * 1024 * 1024;
 const DIAGNOSTIC_TAIL_LENGTH = 8192;
+// Set AGY_BRIDGE_MODEL to another ID, or to an empty string to use agy's own default.
+const DEFAULT_MODEL = process.env.AGY_BRIDGE_MODEL ?? "gemini-3.8-flash-high";
+// Headless agy denies any command outside its allowlist and then abandons the
+// whole turn, so steer the delegate away from compound and exploratory shells.
+const PREAMBLE = `Delegation rules (headless run, nobody can approve prompts):
+- Prefer built-in file read, search, and edit tools over shell commands.
+- Run one simple command at a time: no &&, ||, ;, or pipes.
+- Refer to files by workspace-relative paths, never file:// links or absolute paths.
+- Keep the final answer concise: what changed, files touched, check results.
+
+Task:
+`;
 
 const USAGE = `Usage:
   node gemini-bridge.mjs [options] <task>
@@ -18,7 +30,8 @@ const USAGE = `Usage:
 Reads and edits files as the task requires; commands use agy's configured permissions.
 
 Options:
-  --model <name>               Model override; discover models with agy models.
+  --model <name>               Model override. Default: $AGY_BRIDGE_MODEL or
+                              gemini-3.8-flash-high; discover with agy models.
   --effort <value>             Reasoning effort override, validated by agy.
   --conversation <id>          Resume this specific conversation.
   --cwd <path>                Workspace directory. Default: caller's directory.
@@ -26,6 +39,7 @@ Options:
                               Bridge output format. Default: text.
   --timeout <seconds>          Positive time limit. Default: 600.
   --sandbox                   Enable agy's native terminal sandbox.
+  --no-preamble               Send the task text without the delegation rules.
   --print-command             Print a JSON launch description without running.
   --                          Treat remaining arguments as task text.
   -h, --help                  Show this help.
@@ -41,9 +55,9 @@ function optionValue(argv, index) {
 
 function parseCliArgs(argv) {
   const options = {
-    task: "", model: undefined, effort: undefined, conversation: undefined,
+    task: "", model: DEFAULT_MODEL || undefined, effort: undefined, conversation: undefined,
     cwd: process.cwd(), format: "text",
-    timeout: 600, sandbox: false, printCommand: false, help: false,
+    timeout: 600, sandbox: false, preamble: true, printCommand: false, help: false,
   };
   const taskTokens = [];
   for (let index = 0; index < argv.length; index += 1) {
@@ -56,6 +70,8 @@ function parseCliArgs(argv) {
       options.help = true;
     } else if (token === "--sandbox") {
       options.sandbox = true;
+    } else if (token === "--no-preamble") {
+      options.preamble = false;
     } else if (token === "--print-command") {
       options.printCommand = true;
     } else if (["--model", "--effort", "--conversation", "--cwd", "--format", "--timeout"].includes(token)) {
@@ -94,7 +110,7 @@ function buildLaunchDescription(options) {
     command: process.platform === "win32" ? "agy.exe" : "agy",
     args,
     cwd: options.cwd,
-    input: JSON.stringify({ event: "user", message: { content: options.task } }) + "\n",
+    input: JSON.stringify({ event: "user", message: { content: options.preamble ? PREAMBLE + options.task : options.task } }) + "\n",
   };
 }
 

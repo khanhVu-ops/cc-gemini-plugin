@@ -176,15 +176,17 @@ An installed skill runs `scripts/gemini-bridge.mjs` relative to its own
 | --- | --- |
 | `<task>` | Required task; `--` ends option parsing. |
 | `--cwd <path>` | Target workspace; defaults to the caller's working directory. |
-| `--model <id>` | Opaque model override; omitted by default. Discover with `agy models`. |
+| `--model <id>` | Model override. Default: `$AGY_BRIDGE_MODEL`, else `gemini-3.8-flash-high` (empty variable = `agy` default). Discover with `agy models`. |
 | `--effort <value>` | Opaque effort override; omitted by default and validated by `agy`. |
 | `--conversation <id>` | Explicit conversation to resume, obtained from a previous result. |
 | `--format text\|json\|stream-json` | Output format, default `text`. |
 | `--timeout <seconds>` | Positive time limit, default 600; native timeout plus parent watchdog. |
 | `--sandbox` | Enable the native terminal sandbox. |
+| `--no-preamble` | Send the task unchanged, without the bridge's headless-safety preamble. |
 | `--print-command` | Print a JSON launch description without invoking `agy`. |
 
-Tasks travel in one NDJSON stdin message, and `agy` is launched without a shell.
+Tasks travel in one NDJSON stdin message, prefixed by a short preamble that
+asks `agy` to avoid compound shell commands, which headless mode denies, and `agy` is launched without a shell.
 Programmatic requests disable slash-command expansion. The bridge does not look
 up a latest conversation or read private conversation databases. It does not
 automatically retry failed runs.
