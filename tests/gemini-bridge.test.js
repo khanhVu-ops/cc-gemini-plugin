@@ -37,7 +37,7 @@ async function run(args, scenario = "success", extras = {}) {
 test("transport sends a large literal task in one stdin message and uses the requested workspace", async () => {
   const task = `Analyze 'quotes' \"double quotes\" $HOME $(echo nope) ; | & \\ 中文\n${"context ".repeat(40_000)}`;
   const cwd = await fs.mkdtemp(path.join(scratch, "target workspace "));
-  const result = await run(["--cwd", cwd, "--format", "json", "--", task], "echo");
+  const result = await run(["--cwd", cwd, "--format", "json", "--no-preamble", "--", task], "echo");
   assert.equal(result.exitCode, 0, result.stderr);
   const envelope = JSON.parse(result.stdout);
   assert.equal(envelope.ok, true);
@@ -54,7 +54,8 @@ test("transport sends a large literal task in one stdin message and uses the req
     assert.equal(observed.args[observed.args.indexOf(flag) + 1], "stream-json");
   }
   assert.equal(observed.args[observed.args.indexOf("--mode") + 1], "accept-edits");
-  for (const flag of ["--model", "--effort", "--sandbox", "--continue", "--dangerously-skip-permissions"]) {
+  assert.equal(observed.args[observed.args.indexOf("--model") + 1], "gemini-3.8-flash-high");
+  for (const flag of ["--effort", "--sandbox", "--continue", "--dangerously-skip-permissions"]) {
     assert.ok(!observed.args.includes(flag), flag);
   }
   assert.ok(!observed.args.some((arg) => arg.includes("context ")));
@@ -86,7 +87,15 @@ test("print-command resolves launch details without starting agy", async () => {
   const launch = JSON.parse(result.stdout);
   assert.equal(launch.cwd, scratch);
   assert.equal(launch.args[launch.args.indexOf("--print-timeout") + 1], "600s");
-  assert.equal(JSON.parse(launch.input).message.content, "--literal-task");
+  const content = JSON.parse(launch.input).message.content;
+  assert.ok(content.startsWith("Delegation rules"));
+  assert.ok(content.endsWith("Task:\n--literal-task"));
+});
+
+test("--no-preamble sends the task text unchanged", async () => {
+  const result = await run(["--print-command", "--no-preamble", "--", "--literal-task"]);
+  assert.equal(result.exitCode, 0, result.stderr);
+  assert.equal(JSON.parse(JSON.parse(result.stdout).input).message.content, "--literal-task");
 });
 
 test("invalid options fail before launching with actionable diagnostics", async (t) => {
